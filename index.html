@@ -3,49 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Fondo negro para el navegador, pero transparente para el juego */
         body { background-color: transparent; overflow: hidden; margin: 0; padding: 0; }
 
         #hud-container {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 350px; /* Tamaño del área del velocímetro */
-            height: 350px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            bottom: 20px;
+            right: 20px;
+            width: 300px; /* Si se ve pequeño, sube esto a 400px */
+            height: 300px;
         }
 
         .capa {
             position: absolute;
-            max-width: 100%;
-            max-height: 100%;
-            /* Esto obliga a todas las imágenes a centrarse y no estirarse */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            object-fit: contain;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Quitamos el centrado forzado para que respeten su posición original */
+            object-fit: none; 
         }
 
         #txt-velocidad {
             position: absolute;
-            top: 50%; /* Lo centra verticalmente */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-family: 'Arial Black', sans-serif;
-            font-size: 40px;
+            width: 100%;
             text-align: center;
+            top: 140px; /* MUEVE ESTE NÚMERO para subir o bajar el texto */
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 32px;
+            font-weight: bold;
             z-index: 10;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .sub-text {
-            font-size: 14px;
-            display: block;
-            margin-top: -5px;
-            opacity: 0.8;
         }
     </style>
 </head>
@@ -64,25 +51,18 @@
 
         <div id="txt-velocidad">
             <span id="num-vel">000</span>
-            <span class="sub-text">km/h</span>
+            <div style="font-size: 12px; opacity: 0.7;">km/h</div>
         </div>
     </div>
 
     <script>
         window.addEventListener('updateHUD', (event) => {
             const [vel, gas, motor] = event.detail;
-
-            // Actualizar número
             document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
-
-            // Ajuste de la barra de velocidad (Arco)
-            // Si al acelerar se corta mal, cambia el 2.0 por 2.5 o 1.8
-            let clipValue = 100 - (vel / 2.0); 
-            document.getElementById('barra-vel').style.clipPath = `inset(0 ${clipValue}% 0 0)`;
-
-            // Gasolina y Motor
-            document.getElementById('barra-gas').style.opacity = gas / 100;
-            document.getElementById('barra-motor').style.opacity = motor / 100;
+            
+            // Ajuste del arco
+            let percent = 100 - (vel / 2); 
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${percent}% 0 0)`;
         });
     </script>
 </body>
