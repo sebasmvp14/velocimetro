@@ -7,9 +7,9 @@
 
         #hud-container {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 300px; /* Si se ve pequeño, sube esto a 400px */
+            bottom: 30px;
+            right: 30px;
+            width: 300px; 
             height: 300px;
         }
 
@@ -19,19 +19,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Quitamos el centrado forzado para que respeten su posición original */
-            object-fit: none; 
+            object-fit: contain;
         }
 
         #txt-velocidad {
             position: absolute;
             width: 100%;
             text-align: center;
-            top: 140px; /* MUEVE ESTE NÚMERO para subir o bajar el texto */
+            top: 142px; /* Ajusta esto para centrar el 000 en tu círculo */
             color: white;
-            font-family: 'Arial', sans-serif;
-            font-size: 32px;
-            font-weight: bold;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 30px;
             z-index: 10;
         }
     </style>
@@ -51,18 +49,27 @@
 
         <div id="txt-velocidad">
             <span id="num-vel">000</span>
-            <div style="font-size: 12px; opacity: 0.7;">km/h</div>
+            <div style="font-size: 12px; font-family: Arial; opacity: 0.8;">km/h</div>
         </div>
     </div>
 
     <script>
         window.addEventListener('updateHUD', (event) => {
             const [vel, gas, motor] = event.detail;
+
+            // 1. Actualizar el texto de velocidad
             document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
+
+            // 2. Barra de Velocidad (Arco)
+            let clipVel = 100 - (vel / 2.2); // Ajusta el 2.2 según el largo de tu arco
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${clipVel}% 0 0)`;
+
+            // 3. Barra de Gasolina (Ajuste de visibilidad)
+            // Si quieres que se "llene", usa inset. Si solo quieres que brille, usa opacity.
+            document.getElementById('barra-gas').style.opacity = (gas / 100); 
             
-            // Ajuste del arco
-            let percent = 100 - (vel / 2); 
-            document.getElementById('barra-vel').style.clipPath = `inset(0 ${percent}% 0 0)`;
+            // 4. Barra de Motor
+            document.getElementById('barra-motor').style.opacity = (motor / 100);
         });
     </script>
 </body>
