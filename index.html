@@ -1,78 +1,72 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <style>
-        body { background-color: transparent; overflow: hidden; margin: 0; padding: 0; }
-        
-        #hud-container {
+        body { background: transparent; margin: 0; overflow: hidden; }
+
+        #hud {
             position: absolute;
             bottom: 30px;
             right: 30px;
-            width: 350px; 
-            height: 350px;
-            /* Esto centra todo lo que metas dentro */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 300px;
+            height: 300px;
         }
 
-        .capa {
-            position: absolute;
-            /* IMPORTANTE: Si las imágenes son de distintos tamaños, 
-               esto las obliga a no estirarse y mantenerse centradas */
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+        .capa { position: absolute; }
+
+        /* --- AJUSTE MANUAL AQUÍ --- */
+        
+        #base { top: 0; left: 0; width: 250px; z-index: 1; }
+
+        #barra-vel { 
+            top: 25px;   /* Sube/Baja la barra verde */
+            left: 25px;  /* Mueve Izquierda/Derecha la barra verde */
+            width: 200px; 
+            z-index: 2;
+        }
+
+        #barra-gas { 
+            top: 10px;   /* Ajusta posición de gasolina */
+            left: 220px; 
+            width: 40px; 
+            z-index: 2;
         }
 
         #txt-velocidad {
             position: absolute;
-            z-index: 10;
+            top: 105px; /* Mueve el número arriba o abajo */
+            left: 85px; /* Mueve el número a los lados */
+            width: 80px;
+            text-align: center;
             color: white;
             font-family: 'Arial Black', sans-serif;
-            text-align: center;
-            /* Lo bajamos un poquito para que quede en el centro del arco */
-            margin-top: 20px; 
+            z-index: 10;
         }
-
-        #num-vel { font-size: 45px; display: block; line-height: 1; }
-        .kmh { font-size: 14px; opacity: 0.8; font-family: Arial; }
     </style>
 </head>
 <body>
 
-    <div id="hud-container">
-        <img src="velocimetro_base.png" class="capa">
-
+    <div id="hud">
+        <img src="velocimetro_base.png" id="base" class="capa">
+        
         <img src="barras_y_marcadores/barra_arco.png" id="barra-vel" class="capa">
         <img src="barras_y_marcadores/barra_gasolina.png" id="barra-gas" class="capa">
-        <img src="barras_y_marcadores/barra_motor.png" id="barra-motor" class="capa">
-
-        <img src="barras_y_marcadores/marcador.png" class="capa">
-        <img src="barras_y_marcadores/marcador_gasolina.png" class="capa">
-        <img src="barras_y_marcadores/marcador_motor.png" class="capa">
 
         <div id="txt-velocidad">
-            <span id="num-vel">000</span>
-            <span class="kmh">km/h</span>
+            <div id="num-vel" style="font-size: 35px;">000</div>
+            <div style="font-size: 12px; opacity: 0.8;">km/h</div>
         </div>
     </div>
 
     <script>
         window.addEventListener('updateHUD', (event) => {
             const [vel, gas, motor] = event.detail;
-
-            // Actualizar número
             document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
 
-            // Lógica del arco (Ajusta el 2.0 según el largo de tu barra)
+            // Ajuste del arco
             let percent = 100 - (vel / 2.0); 
             document.getElementById('barra-vel').style.clipPath = `inset(0 ${percent}% 0 0)`;
-
-            // Gasolina y Motor
-            document.getElementById('barra-gas').style.opacity = (gas / 100);
-            document.getElementById('barra-motor').style.opacity = (motor / 100);
         });
     </script>
 </body>
