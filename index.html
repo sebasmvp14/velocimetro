@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Fondo gris oscuro para saber que la web cargó. Luego lo pondremos en transparent */
-        body { background-color: #1a1a1a; overflow: hidden; margin: 0; padding: 0; }
+        /* Fondo oscuro para ver el contraste */
+        body { background-color: #000; color: white; font-family: sans-serif; margin: 0; }
+        
+        #debug-info { position: absolute; top: 10px; left: 10px; font-size: 12px; color: yellow; }
 
         #hud-container {
             position: absolute;
@@ -12,6 +14,7 @@
             right: 50px;
             width: 400px;
             height: 250px;
+            border: 1px dashed #333; /* Para ver dónde está el HUD */
         }
 
         .capa {
@@ -21,59 +24,38 @@
             object-fit: contain;
         }
 
-        #txt-velocidad {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 48px;
-            font-weight: bold;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        /* Si la imagen no carga, se verá este estilo */
+        img:after { 
+            content: "Error cargando: " attr(src);
+            display: block;
+            font-size: 10px;
+            color: red;
+            background: black;
         }
     </style>
 </head>
 <body>
 
+    <div id="debug-info">Estado: Cargando archivos...</div>
+
     <div id="hud-container">
-        <img src="velocimetro_base.png" class="capa">
+        <img src="velocimetro_base.png" class="capa" onerror="document.getElementById('debug-info').innerHTML='Error en: velocimetro_base.png'">
 
         <img src="barras_y_marcadores/barra_arco.png" id="barra-vel" class="capa">
         <img src="barras_y_marcadores/barra_gasolina.png" id="barra-gas" class="capa">
-        <img src="barras_y_marcadores/barra_motor.png" id="barra-motor" class="capa">
-
-        <img src="barras_y_marcadores/marcador.png" class="capa">
-        <img src="barras_y_marcadores/marcador_gasolina.png" class="capa">
-        <img src="barras_y_marcadores/marcador_motor.png" class="capa">
-
-        <div id="txt-velocidad">
+        
+        <div id="txt-velocidad" style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size:40px;">
             <span id="num-vel">000</span>
-            <div style="font-size: 18px; opacity: 0.8;">km/h</div>
         </div>
     </div>
 
     <script>
-        // Esta función recibe los datos desde el servidor SAMP
+        // Confirmación de que el JS cargó
+        document.getElementById('debug-info').innerHTML = "Web lista. Esperando datos de SAMP...";
+        
         window.addEventListener('updateHUD', (event) => {
-            const data = event.detail;
-            const vel = data[0] || 0;
-            const gas = data[1] || 0;
-            const motor = data[2] || 0;
-
-            // Actualizar número de velocidad
-            document.getElementById('num-vel').innerText = 
-                Math.floor(vel).toString().padStart(3, '0');
-
-            // Efecto de recorte para la barra de velocidad (arco)
-            // Ajusta el (vel/2) dependiendo de qué tan larga sea tu barra
-            document.getElementById('barra-vel').style.clipPath = 
-                `inset(0 ${100 - (vel/2)}% 0 0)`;
-
-            // Opacidad para gasolina y motor según estado
-            document.getElementById('barra-gas').style.opacity = gas / 100;
-            document.getElementById('barra-motor').style.opacity = motor / 100;
+            const vel = event.detail[0] || 0;
+            document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
         });
     </script>
 </body>
