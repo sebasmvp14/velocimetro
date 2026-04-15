@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Fondo transparente para que no estorbe en el GTA */
         body { background-color: transparent; overflow: hidden; margin: 0; padding: 0; }
-
+        
         #hud-container {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 400px; 
-            height: 400px;
+            bottom: 30px;
+            right: 30px;
+            width: 350px; 
+            height: 350px;
+            /* Esto centra todo lo que metas dentro */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .capa {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            /* IMPORTANTE: Si las imágenes son de distintos tamaños, 
+               esto las obliga a no estirarse y mantenerse centradas */
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
         }
 
         #txt-velocidad {
             position: absolute;
-            width: 100%;
-            text-align: center;
-            /* Ajusta este 50% si el número no queda centrado en tu círculo */
-            top: 50%; 
-            transform: translateY(-50%);
+            z-index: 10;
             color: white;
             font-family: 'Arial Black', sans-serif;
-            font-size: 42px;
-            z-index: 10;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            text-align: center;
+            /* Lo bajamos un poquito para que quede en el centro del arco */
+            margin-top: 20px; 
         }
+
+        #num-vel { font-size: 45px; display: block; line-height: 1; }
+        .kmh { font-size: 14px; opacity: 0.8; font-family: Arial; }
     </style>
 </head>
 <body>
@@ -53,25 +55,22 @@
 
         <div id="txt-velocidad">
             <span id="num-vel">000</span>
-            <div style="font-size: 14px; font-family: Arial; font-weight: normal; opacity: 0.8;">km/h</div>
+            <span class="kmh">km/h</span>
         </div>
     </div>
 
     <script>
-        // Esta función la llama tu servidor SAMP/PAWN
         window.addEventListener('updateHUD', (event) => {
             const [vel, gas, motor] = event.detail;
 
-            // Actualizar número de velocidad con ceros a la izquierda (005, 050, 120)
-            document.getElementById('num-vel').innerText = 
-                Math.floor(vel).toString().padStart(3, '0');
+            // Actualizar número
+            document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
 
-            // Efecto de arco para la velocidad
-            // Dividir entre 2.0 asume que el tope son 200km/h. Ajústalo si es necesario.
-            let clipVel = 100 - (vel / 2.0); 
-            document.getElementById('barra-vel').style.clipPath = `inset(0 ${clipVel}% 0 0)`;
+            // Lógica del arco (Ajusta el 2.0 según el largo de tu barra)
+            let percent = 100 - (vel / 2.0); 
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${percent}% 0 0)`;
 
-            // Barras de estado (Gasolina y Motor) por opacidad
+            // Gasolina y Motor
             document.getElementById('barra-gas').style.opacity = (gas / 100);
             document.getElementById('barra-motor').style.opacity = (motor / 100);
         });
