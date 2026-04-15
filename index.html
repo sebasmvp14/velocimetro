@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background: transparent; }
+        #hud {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 220px;
+            height: 220px;
+            display: none; /* Se oculta por defecto hasta que subas al coche */
+        }
+        .capa {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        #val {
+            position: absolute;
+            top: 47%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            font-weight: 900;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        #speed, #gas, #motor { transition: clip-path 0.1s linear; }
+    </style>
+</head>
+<body>
+
+<div id="hud">
+    <img src="velocimetro_base.png" class="capa">
+    <img src="barra_arco.png" id="speed" class="capa">
+    <img src="barra_gasolina.png" id="gas" class="capa">
+    <img src="barra_motor.png" id="motor" class="capa">
+    <div id="val">000</div>
+</div>
+
+<script>
+    const hud = document.getElementById("hud");
+    const valText = document.getElementById("val");
+    const speedImg = document.getElementById("speed");
+    const gasImg = document.getElementById("gas");
+    const motorImg = document.getElementById("motor");
+
+    function update(v, g, m) {
+        valText.innerText = Math.floor(v).toString().padStart(3, "0");
+        
+        // Arco Velocidad
+        let pVel = Math.min(v / 240, 1) * 100;
+        speedImg.style.clipPath = `inset(0 ${100 - pVel}% 0 0)`;
+
+        // Gasolina (Abajo a arriba)
+        let pGas = Math.min(g / 100, 1) * 100;
+        gasImg.style.clipPath = `inset(${100 - pGas}% 0 0 0)`;
+
+        // Motor (Abajo a arriba)
+        let pMot = Math.min(m / 100, 1) * 100;
+        motorImg.style.clipPath = `inset(${100 - pMot}% 0 0 0)`;
+    }
+
+    // Escucha del Servidor
+    window.addEventListener("updateHUD", (e) => {
+        if(hud.style.display !== 'block') hud.style.display = 'block';
+        update(e.detail[0], e.detail[1], e.detail[2]);
+    });
+
+    // Función para ocultar desde Pawn
+    window.addEventListener("hideHUD", () => {
+        hud.style.display = 'none';
+    });
+</script>
+</body>
+</html>
