@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Fondo transparente para que no estorbe en el GTA */
+        body { background-color: transparent; overflow: hidden; margin: 0; padding: 0; }
+
+        #hud-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 400px; 
+            height: 400px;
+        }
+
+        .capa {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #txt-velocidad {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            /* Ajusta este 50% si el número no queda centrado en tu círculo */
+            top: 50%; 
+            transform: translateY(-50%);
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 42px;
+            z-index: 10;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hud-container">
+        <img src="velocimetro_base.png" class="capa">
+
+        <img src="barras_y_marcadores/barra_arco.png" id="barra-vel" class="capa">
+        <img src="barras_y_marcadores/barra_gasolina.png" id="barra-gas" class="capa">
+        <img src="barras_y_marcadores/barra_motor.png" id="barra-motor" class="capa">
+
+        <img src="barras_y_marcadores/marcador.png" class="capa">
+        <img src="barras_y_marcadores/marcador_gasolina.png" class="capa">
+        <img src="barras_y_marcadores/marcador_motor.png" class="capa">
+
+        <div id="txt-velocidad">
+            <span id="num-vel">000</span>
+            <div style="font-size: 14px; font-family: Arial; font-weight: normal; opacity: 0.8;">km/h</div>
+        </div>
+    </div>
+
+    <script>
+        // Esta función la llama tu servidor SAMP/PAWN
+        window.addEventListener('updateHUD', (event) => {
+            const [vel, gas, motor] = event.detail;
+
+            // Actualizar número de velocidad con ceros a la izquierda (005, 050, 120)
+            document.getElementById('num-vel').innerText = 
+                Math.floor(vel).toString().padStart(3, '0');
+
+            // Efecto de arco para la velocidad
+            // Dividir entre 2.0 asume que el tope son 200km/h. Ajústalo si es necesario.
+            let clipVel = 100 - (vel / 2.0); 
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${clipVel}% 0 0)`;
+
+            // Barras de estado (Gasolina y Motor) por opacidad
+            document.getElementById('barra-gas').style.opacity = (gas / 100);
+            document.getElementById('barra-motor').style.opacity = (motor / 100);
+        });
+    </script>
+</body>
+</html>
