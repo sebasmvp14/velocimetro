@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Fondo transparente para el juego */
+        body { 
+            background-color: transparent; 
+            overflow: hidden; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        #hud-master {
+            position: absolute;
+            /* UBICACIÓN EN LA ESQUINA */
+            bottom: 30px; /* Distancia desde abajo */
+            right: 30px;  /* Distancia desde la derecha */
+            
+            /* Tamaño del Frame de Figma */
+            width: 400px; 
+            height: 400px;
+        }
+
+        .capa {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Mantiene la proporción sin importar el tamaño */
+            object-fit: contain;
+        }
+
+        #txt-velocidad {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            /* Ajusta este % si el número no queda centrado en tu círculo */
+            top: 50%; 
+            transform: translateY(-50%);
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            font-size: 45px;
+            z-index: 10;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .kmh-label {
+            font-size: 14px;
+            font-family: Arial;
+            font-weight: normal;
+            display: block;
+            margin-top: -5px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hud-master">
+        <img src="velocimetro_base.png" class="capa">
+
+        <img src="barras_y_marcadores/barra_arco.png" id="barra-vel" class="capa">
+        <img src="barras_y_marcadores/barra_gasolina.png" id="barra-gas" class="capa">
+        <img src="barras_y_marcadores/barra_motor.png" id="barra-motor" class="capa">
+
+        <img src="barras_y_marcadores/marcador.png" class="capa">
+
+        <div id="txt-velocidad">
+            <span id="num-vel">000</span>
+            <span class="kmh-label">km/h</span>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('updateHUD', (event) => {
+            const [vel, gas, motor] = event.detail;
+
+            // Actualizar número (000)
+            document.getElementById('num-vel').innerText = 
+                Math.floor(vel).toString().padStart(3, '0');
+
+            // Movimiento del arco de velocidad
+            // Dividir entre 2.0 asume tope de 200km/h
+            let clipValue = 100 - (vel / 2.0); 
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${clipValue}% 0 0)`;
+
+            // Gasolina y Motor (Opacidad)
+            document.getElementById('barra-gas').style.opacity = (gas / 100);
+            document.getElementById('barra-motor').style.opacity = (motor / 100);
+        });
+    </script>
+</body>
+</html>
