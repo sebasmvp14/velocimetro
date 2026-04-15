@@ -3,59 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Fondo oscuro para ver el contraste */
-        body { background-color: #000; color: white; font-family: sans-serif; margin: 0; }
-        
-        #debug-info { position: absolute; top: 10px; left: 10px; font-size: 12px; color: yellow; }
+        /* Transparent para el juego */
+        body { background-color: transparent; overflow: hidden; margin: 0; padding: 0; }
 
         #hud-container {
             position: absolute;
-            bottom: 50px;
-            right: 50px;
-            width: 400px;
-            height: 250px;
-            border: 1px dashed #333; /* Para ver dónde está el HUD */
+            bottom: 30px;
+            right: 30px;
+            width: 300px; /* Ajusta el tamaño a tu gusto */
+            height: 300px;
         }
 
         .capa {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Esto hace que encajen una sobre otra */
         }
 
-        /* Si la imagen no carga, se verá este estilo */
-        img:after { 
-            content: "Error cargando: " attr(src);
-            display: block;
-            font-size: 10px;
-            color: red;
-            background: black;
+        #txt-velocidad {
+            position: absolute;
+            top: 55%; /* Ajusta esto para subir o bajar el número */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 35px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-    <div id="debug-info">Estado: Cargando archivos...</div>
-
     <div id="hud-container">
-        <img src="velocimetro_base.png" class="capa" onerror="document.getElementById('debug-info').innerHTML='Error en: velocimetro_base.png'">
+        <img src="velocimetro_base.png" class="capa">
 
         <img src="barras_y_marcadores/barra_arco.png" id="barra-vel" class="capa">
         <img src="barras_y_marcadores/barra_gasolina.png" id="barra-gas" class="capa">
-        
-        <div id="txt-velocidad" style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size:40px;">
+        <img src="barras_y_marcadores/barra_motor.png" id="barra-motor" class="capa">
+
+        <img src="barras_y_marcadores/marcador.png" class="capa">
+        <img src="barras_y_marcadores/marcador_gasolina.png" class="capa">
+        <img src="barras_y_marcadores/marcador_motor.png" class="capa">
+
+        <div id="txt-velocidad">
             <span id="num-vel">000</span>
+            <div style="font-size: 14px; opacity: 0.8;">km/h</div>
         </div>
     </div>
 
     <script>
-        // Confirmación de que el JS cargó
-        document.getElementById('debug-info').innerHTML = "Web lista. Esperando datos de SAMP...";
-        
         window.addEventListener('updateHUD', (event) => {
-            const vel = event.detail[0] || 0;
+            const data = event.detail;
+            const vel = data[0] || 0;
+            const gas = data[1] || 0;
+            const motor = data[2] || 0;
+
+            // Actualiza número
             document.getElementById('num-vel').innerText = Math.floor(vel).toString().padStart(3, '0');
+
+            // Recorte de barra de velocidad (Arco)
+            // Si el arco es de 180 grados, vel/2 suele funcionar.
+            let percent = 100 - (vel / 2.2); 
+            document.getElementById('barra-vel').style.clipPath = `inset(0 ${percent}% 0 0)`;
+
+            // Gasolina y Motor (Opacidad o podrías usar clip-path también)
+            document.getElementById('barra-gas').style.opacity = (gas / 100);
+            document.getElementById('barra-motor').style.opacity = (motor / 100);
         });
     </script>
 </body>
